@@ -2,9 +2,12 @@ import os, io, json, sys
 
 if sys.platform == 'linux':
     import pwd
-from helpers import SpikeGLX_utils
 
 import numpy as np
+
+from ecephys_spike_sorting.scripts.helpers import SpikeGLX_utils
+from ecephys_spike_sorting.utils.path_collector import attributes_dict as att
+
 
 def create_samba_directory(samba_server, samba_share):
 

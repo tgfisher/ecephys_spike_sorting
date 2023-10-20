@@ -2,11 +2,13 @@ import os
 import sys
 import subprocess
 
-from helpers import SpikeGLX_utils
-from helpers import log_from_json
-from helpers import run_one_probe
-from create_input_json import createInputJson
+from ecephys_spike_sorting.scripts.helpers import (
+    SpikeGLX_utils,
+    log_from_json,
+    run_one_probe,
+)
 
+from ecephys_spike_sorting.scripts.create_input_json import createInputJson
 
 # script to run CatGT, KS2, postprocessing and TPrime on data collected using
 # SpikeGLX. The construction of the paths assumes data was saved with
