@@ -100,11 +100,8 @@ Build the environment -- it will use the Pipfile located in this directory, and 
 
 ```shell
     $ set PIPENV_VENV_IN_PROJECT=1
-    $ pipenv install
+    $ pipenv install # --python <path/to/python> <-- add that if you want to specify a python executable
     $ pipenv shell
-    (.venv) $ pip uninstall setuptools
-    (.venv) $ pip install setuptools==59.8.0
-    (.venv) $ pip install .
 ```
 ### Set up to run MATLAB from Python
 
@@ -121,12 +118,12 @@ The MATLAB engine for python must be installed in the local instance of python r
 ```shell
 $ pipenv shell
 (.venv) $ cd <matlabroot>\extern\engines\python
-(.venv) $ python setup.py install
+(.venv) $ python -m pip install .
 ```
 
 Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example:
 
-C:\Program Files\MATLAB\R2021b
+`C:\Program Files\MATLAB\R2021b` (or `/usr/bin/local/MATLAB/R2023a` on Ubuntu)
 
 For more details about installing the python engine, see the MATAB documentation:
 
