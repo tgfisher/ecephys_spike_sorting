@@ -1,0 +1,23 @@
+# These attributes allow for easy, transparent management of custom paths
+#   with ecephys_spike_sorting.
+#
+# Recommended Usage:
+#   1) copy this file to `ece_attributes.yaml`. To prevent exposing these
+#     paths, this file is ignored by git.
+#       `$ cp ./ece_attributes_template.yaml ./ece_attributes.yaml`
+#   2) Once copied open `ece_attributes.yaml`and edit the paths.
+---
+ecephys_path: <path/to/directory/with/ecephys_modules/> # ecephys_directory
+
+npy_matlab_path: <path/to/npy_matlab_repo> # npy_matlab_repository
+
+sglx_tools_path_dict:
+  catGT: <path/to/catGT_dir> # catGTPath
+  tPrime: <path/to/tPrime_dir> # tPrimePath
+  cWaves: <path/to/cWaves_dir> # cWavesPath
+
+ks_vers_path_dict:
+    "ksort_version_str": <path/to/ksort_repo> # KS2er: kilosort_repository, (e.g. "2.0": /path/to/ks_repo)
+#   "2.5": <path/to/Kilosort2.5> # <-- example
+
+ks_output_tmp: <path/to/place/tmp/files> # kilosort_output_tmp

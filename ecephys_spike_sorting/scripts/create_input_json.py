@@ -17,85 +17,85 @@ def create_samba_directory(samba_server, samba_share):
 
     return data_dir
 
-def createInputJson(output_file, 
-                    npx_directory=None, 
-                    continuous_file = None,
-                    spikeGLX_data=True,
-                    input_meta_path=None,
-                    extracted_data_directory=None,
-                    kilosort_output_directory=None,
-                    ks_make_copy=False,
-                    probe_type='3A',
-                    catGT_run_name='test',
-                    gate_string='0',
-                    trigger_string='0,0',
-                    probe_string='0',
-                    depth_est_fig = 0,
-                    catGT_stream_string = '-ap',
-                    catGT_car_mode = 'gbldmx',
-                    catGT_loccar_min_um = 40,
-                    catGT_loccar_max_um = 160,
-                    catGT_cmd_string = '-prb_fld -out_prb_fld',
-                    catGT_maxZ_um = -1,
-                    noise_template_use_rf = True,
-                    event_ex_param_str = 'XD=4,1,50',
-                    tPrime_im_ex_list = 'SY=0,384,6,500',
-                    tPrime_ni_ex_list = 'XA=0,1,3,500',
-                    sync_period = 1.0,
-                    toStream_sync_params = 'SY=0,384,6,500',
-                    niStream_sync_params = 'XA=0,1,3,500',
-                    tPrime_3A = False,
-                    toStream_path_3A = None,
-                    fromStream_list_3A = None,
-                    ks_doFilter = 0,
-                    ks_remDup = 0,                   
-                    ks_finalSplits = 1,
-                    ks_labelGood = 1,
-                    ks_saveRez = 1,
-                    ks_copy_fproc = 0,
-                    ks_minfr_goodchannels = 0.1,                  
-                    ks_whiteningRadius_um = 163,
-                    ks_Th = '[10,4]',
-                    ks_CSBseed = 1,
-                    ks_LTseed = 1,
-                    ks_templateRadius_um = 163,
-                    ks_nblocks = 5,
-                    ks_CAR = 0,
-                    ks_output_tag = 'ks2',
-                    c_Waves_snr_um = 160,
-                    wm_spread_thresh = 0.12,
-                    wm_site_range = 16,
-                    qm_isi_thresh = 1.5/1000,
-                    include_pcs = True
-                    ):
+def createInputJson(
+    output_file,
+    npx_directory=None,
+    continuous_file = None,
+    spikeGLX_data=True,
+    input_meta_path=None,
+    extracted_data_directory=None,
+    kilosort_output_directory=None,
+    ks_make_copy=False,
+    probe_type='3A',
+    catGT_run_name='test',
+    gate_string='0',
+    trigger_string='0,0',
+    probe_string='0',
+    depth_est_fig = 0,
+    catGT_stream_string = '-ap',
+    catGT_car_mode = 'gbldmx',
+    catGT_loccar_min_um = 40,
+    catGT_loccar_max_um = 160,
+    catGT_cmd_string = '-prb_fld -out_prb_fld',
+    catGT_maxZ_um = -1,
+    noise_template_use_rf = True,
+    event_ex_param_str = 'XD=4,1,50',
+    tPrime_im_ex_list = 'SY=0,384,6,500',
+    tPrime_ni_ex_list = 'XA=0,1,3,500',
+    sync_period = 1.0,
+    toStream_sync_params = 'SY=0,384,6,500',
+    niStream_sync_params = 'XA=0,1,3,500',
+    tPrime_3A = False,
+    toStream_path_3A = None,
+    fromStream_list_3A = None,
+    ks_doFilter = 0,
+    ks_remDup = 0,
+    ks_finalSplits = 1,
+    ks_labelGood = 1,
+    ks_saveRez = 1,
+    ks_copy_fproc = 0,
+    ks_minfr_goodchannels = 0.1,
+    ks_whiteningRadius_um = 163,
+    ks_Th = '[10,4]',
+    ks_CSBseed = 1,
+    ks_LTseed = 1,
+    ks_templateRadius_um = 163,
+    ks_nblocks = 5,
+    ks_CAR = 0,
+    ks_output_tag = 'ks2',
+    c_Waves_snr_um = 160,
+    wm_spread_thresh = 0.12,
+    wm_site_range = 16,
+    qm_isi_thresh = 1.5/1000,
+    include_pcs = True
+):
 
     # hard coded paths to code on your computer and system
-    ecephys_directory = r'C:\Users\colonellj\Documents\ecephys_anaconda\ecephys_spike_sorting\ecephys_spike_sorting'
-    
+    ecephys_directory = rf"{att['ece_path']}"
+
     # location of kilosor respository and kilosort version
 
-    kilosort_repository = r'C:\Users\colonellj\Documents\KS2_largetemplate\Kilosort2'
+    KS2ver = "2.5"      # must equal '3.0', '2.5' or '2.0', and match the kiilosort_repository
+    kilosort_repository = rf"{att['ks']['versions'][KS2ver]}"
 
-    KS2ver = '2.0'      # must equal '3.0', '2.5' or '2.0', and match the kiilosort_repository
-    
+
     # KS 3.0 does not yet output pcs.
     if KS2ver == '3.0':
         include_pcs = False  # set to false for KS2ver = '3.0'
-    
-    npy_matlab_repository = r'C:\Users\colonellj\Documents\npy-matlab-master'
-    catGTPath = r'C:\Users\colonellj\Documents\CatGT-win'
-    tPrime_path=r'C:\Users\colonellj\Documents\TPrime-win'
-    cWaves_path=r'C:\Users\colonellj\Documents\C_Waves-win'
-    
-     
+
+    npy_matlab_repository = rf"{att['npy_matlab_path']}"
+    catGTPath = rf"{att['sglx_tools_pdict']['catGT']}"
+    tPrime_path= rf"{att['sglx_tools_pdict']['tPrime']}"
+    cWaves_path= rf"{att['sglx_tools_pdict']['cWaves']}"
+
+
     # for config files and kilosort working space
-    kilosort_output_tmp = r'C:\kilosort_datatemp' 
-    
-    
+    kilosort_output_tmp = rf"{att['ks']['out_tmp']}"
+
     # derived directory names
-    
+
     modules_directory = os.path.join(ecephys_directory,'modules')
-    
+
     if kilosort_output_directory is None \
          and extracted_data_directory is None \
          and npx_directory is None:
