@@ -259,3 +259,10 @@ def CreateNITimeEvents(catGT_run_name, gate_string, catGT_dest):
         file_fyi.close()
 
     return
+
+def gate_lowspec(gate_string):
+    """Super basic right now, just grab the first gate as this is what catGT does
+    by default when building filenames.
+    """
+
+    return gate_string[0]

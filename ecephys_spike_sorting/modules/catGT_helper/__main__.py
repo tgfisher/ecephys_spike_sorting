@@ -10,6 +10,8 @@ from pathlib import Path
 
 from ...common.utils import read_probe_json, get_repo_commit_date_and_hash, rms
 
+from ecephys_spike_sorting.scripts.helpers import SpikeGLX_utils
+
 def run_CatGT(args):
 
     print('ecephys spike sorting: CatGT helper module')
@@ -89,7 +91,7 @@ def run_CatGT(args):
         [
             "catgt",
             args['catGT_helper_params']['run_name'],
-            f"g{gate_lowspec(args['catGT_helper_params']['gate_string'])}",
+            f"g{SpikeGLX_utils.gate_lowspec(args['catGT_helper_params']['gate_string'])}",
         ]
     )
 
@@ -111,7 +113,7 @@ def run_CatGT(args):
     run_name = "_".join(
         [
             args['catGT_helper_params']['run_name'],
-            f"g{gate_lowspec(args['catGT_helper_params']['gate_string'])}"
+            f"g{SpikeGLX_utils.gate_lowspec(args['catGT_helper_params']['gate_string'])}"
         ]
     )
     fyi_path = os.path.join(catgt_runDir, (run_name + '_fyi.txt'))
@@ -138,10 +140,6 @@ def run_CatGT(args):
     
     return {"execution_time" : execution_time} # output manifest
 
-def gate_lowspec(gate_string):
-    """Super basic right now, just grab the first gate as this is what catGT does
-    by default when building filenames.
-    """
 
     return gate_string[0]
 
