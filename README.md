@@ -123,7 +123,7 @@ $ pipenv shell
 
 Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example:
 
-`C:\Program Files\MATLAB\R2021b` (or `/usr/bin/local/MATLAB/R2023a` on Ubuntu)
+`C:\Program Files\MATLAB\R2021b` (or `/usr/local/MATLAB/R2023a` on Ubuntu)
 
 For more details about installing the python engine, see the MATAB documentation:
 
