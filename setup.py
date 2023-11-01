@@ -24,6 +24,7 @@ setup(
     },
     setup_requires=['pytest-runner'],
     install_requires=[
+        'pyyaml',
         'matplotlib',
         'scipy',
         'numpy',
