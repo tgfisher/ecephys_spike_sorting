@@ -10,6 +10,8 @@ from pathlib import Path
 
 from ...common.utils import read_probe_json, get_repo_commit_date_and_hash, rms
 
+from ecephys_spike_sorting.scripts.helpers import SpikeGLX_utils
+
 def run_CatGT(args):
 
     print('ecephys spike sorting: CatGT helper module')
@@ -83,10 +85,16 @@ def run_CatGT(args):
     # python scripte, to the destination directory
     logPath = os.getcwd()
     logName = 'CatGT.log'
-   
-         
-    catgt_runName = 'catgt_' + args['catGT_helper_params']['run_name'] + '_g' + args['catGT_helper_params']['gate_string']
-    
+
+
+    catgt_runName = "_".join(
+        [
+            "catgt",
+            args['catGT_helper_params']['run_name'],
+            f"g{SpikeGLX_utils.gate_lowspec(args['catGT_helper_params']['gate_string'])}",
+        ]
+    )
+
     # build name for log copy
     catgt_logName = catgt_runName
     if 'ap' in args['catGT_helper_params']['stream_string']:
@@ -102,7 +110,12 @@ def run_CatGT(args):
                     os.path.join(catgt_runDir,catgt_logName))
     
     # if an fyi file was created, check if there is aleady an 'all_fyi.txt'
-    run_name = args['catGT_helper_params']['run_name'] + '_g' + args['catGT_helper_params']['gate_string']
+    run_name = "_".join(
+        [
+            args['catGT_helper_params']['run_name'],
+            f"g{SpikeGLX_utils.gate_lowspec(args['catGT_helper_params']['gate_string'])}"
+        ]
+    )
     fyi_path = os.path.join(catgt_runDir, (run_name + '_fyi.txt'))
     all_fyi_path =  os.path.join(catgt_runDir, (run_name + '_all_fyi.txt'))
     temp_path = os.path.join(catgt_runDir, 'temp.txt')
@@ -127,6 +140,8 @@ def run_CatGT(args):
     
     return {"execution_time" : execution_time} # output manifest
 
+
+    return gate_string[0]
 
 def ParseProbeStr(probe_string):
     
