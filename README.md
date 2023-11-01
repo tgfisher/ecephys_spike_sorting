@@ -17,7 +17,7 @@ https://github.com/AllenInstitute/ecephys_spike_sorting
 
 The general outline of the pipeline is preprocessing, spike sorting by [Kilosort 3.0](https://github.com/MouseLand/Kilosort), [Kilosort 2.5](https://github.com/MouseLand/Kilosort2) or [Kilosort 2.0](https://github.com/MouseLand/Kilosort/releases/tag/v2.0) , followed by cleanup and calculation of QC metrics. The original version from the Allen used preprocessing specifically for data saved using the [Open Ephys GUI](https://github.com/open-ephys/plugin-gui). This version is designed to run with data collected using [SpikeGLX](http://billkarsh.github.io/SpikeGLX), and its associated tools (CatGT, TPrime, and C_Waves). The identification of noise clusters is unchanged from the original code. Calculation of QC metrics has been updated to work with any Neuropixels probe type, rather than assuming NP 1.0 site geomtery; also, the metrics code can now be run on phy output after manual curation.
 
-The spikeGLX_pipeline.py script implements this pipeline: 
+The spikeGLX_pipeline.py script implements this pipeline:
 
 ![ece_pipeline_cartoon](ece_pipeline_cartoon.png)
 
@@ -43,9 +43,9 @@ Further documentation can be found in each module's README file. For more inform
 
 7. [tPrime_helper](ecephys_spike_sorting/modules/tPrime_helper/README.md): Maps event times (edges in auxiliary channels, spike times) in all streams to match a reference stream.
 
-8. [depth_estimation](ecephys_spike_sorting/modules/depth_estimation/README.md): Uses the LFP data to identify the surface channel. Updated to use site geometry from SGLX metedata. Currently does not feed this result to kilosort. Can be run in any part of the processing after CatGT, if LFP processing has been performed. 
+8. [depth_estimation](ecephys_spike_sorting/modules/depth_estimation/README.md): Uses the LFP data to identify the surface channel. Updated to use site geometry from SGLX metedata. Currently does not feed this result to kilosort. Can be run in any part of the processing after CatGT, if LFP processing has been performed.
 
-### Modules Specific to Open Ephys 
+### Modules Specific to Open Ephys
 
 1. [extract_from_npx](ecephys_spike_sorting/modules/extract_from_npx/README.md): Calls a binary executable that converts data from compressed NPX format into .dat files (continuous data) and .npy files (event data)
 
@@ -99,12 +99,11 @@ cd \Users\labadmin\Documents\ecephys_clone\ecephys_spike_sorting
 Build the environment -- it will use the Pipfile located in this directory, and create the virtual environment in the local directory. Currently (May 2023) the latest version of setuptools appears to not function with installation of MATLAB, so after the install, we activate the environment and use pip to uninstall setuptools and install 59.8.0.  Finally, install the ecephys code in the environment.
 
 ```shell
-    $ set PIPENV_VENV_IN_PROJECT=1
-    $ pipenv install
+    $ export PIPENV_VENV_IN_PROJECT=1
+    $ pipenv install # --python <path/to/python> <-- add that if you want to specify a python executable
+                     # e.g. pipenv install --python /usr/bin/python3.8
     $ pipenv shell
-    (.venv) $ pip uninstall setuptools
-    (.venv) $ pip install setuptools==59.8.0
-    (.venv) $ pip install .
+    $ pip install .
 ```
 ### Set up to run MATLAB from Python
 
@@ -112,7 +111,7 @@ The python version and MATLAB version need to be compatible. For Python 3.8, thi
 
 Install MATLAB 2021b. Side by side installations of MATLAB are fine, so there is no need to delete earlier versions, and running code specific to an earlier version should be possible.
 
-Open MATLAB 2021b, and enter the command gpuDevice(). You make get a message that there are no GPU devices with compatible drivers. Later versions of MATLAB also require more recent drivers for the GPU card. MATLAB 2021b requires version 10.1 or later of the Nvidia drivers. 
+Open MATLAB 2021b, and enter the command gpuDevice(). You make get a message that there are no GPU devices with compatible drivers. Later versions of MATLAB also require more recent drivers for the GPU card. MATLAB 2021b requires version 10.1 or later of the Nvidia drivers.
 
 If you get that message, quit MATLAB. Update the drivers for the GPU card; this can be done with the Device Manager in Windows 10, and will also happen automatically if you update the CUDA Toolkit. The pipeline has been tested with CUDA Toolkit 11.2 (by the way, all CUDA toolkit versions are backward compatible to older hardware). After updating, restart MATLAB and enter gpuDevice() again to make sure it is recognized.
 
@@ -121,12 +120,12 @@ The MATLAB engine for python must be installed in the local instance of python r
 ```shell
 $ pipenv shell
 (.venv) $ cd <matlabroot>\extern\engines\python
-(.venv) $ python setup.py install
+(.venv) $ python -m pip install .
 ```
 
-Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example: 
+Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example:
 
-C:\Program Files\MATLAB\R2021b
+`C:\Program Files\MATLAB\R2021b` (or `/usr/local/MATLAB/R2023a` on Ubuntu)
 
 For more details about installing the python engine, see the MATAB documentation:
 
@@ -159,7 +158,7 @@ pip uninstall setuptools
 pip install setuptools==59.8.0
 ```
 
-To install pykilsort and other components, navigate to the pykilosort directory and run the commands: 
+To install pykilsort and other components, navigate to the pykilosort directory and run the commands:
 
 ```shell
 pip install -e .
@@ -185,7 +184,7 @@ The python version and MATLAB version need to be compatible. To be compatible wi
 
 Install MATLAB 2021b. Side by side installations of MATLAB are fine, so there is no need to delete earlier versions.
 
-Open MATLAB 2021b, and enter the command gpuDevice(). You make get a message that there are no GPU devices with compatible drivers. Later versions of MATLAB also require more recent drivers for the GPU card. MATLAB 2021b requires version 10.1 or later of the Nvidia drivers. 
+Open MATLAB 2021b, and enter the command gpuDevice(). You make get a message that there are no GPU devices with compatible drivers. Later versions of MATLAB also require more recent drivers for the GPU card. MATLAB 2021b requires version 10.1 or later of the Nvidia drivers.
 
 If you get that message, quit MATLAB. Update the drivers for the GPU card; this can be done with the Device Manager in Windows 10, and will also happen automatically if you update the CUDA Toolkit. The pipeline has been tested with CUDA Toolkit 11.2 (by the way, all CUDA toolkit versions are backward compatible to older hardware). After updating, restart MATLAB and enter gpuDevice() again to make sure it is recognized.
 
@@ -197,7 +196,7 @@ cd <matlabroot>\extern\engines\python
 python setup.py install
 ```
 
-Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example: 
+Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example:
 
 C:\Program Files\MATLAB\R2021b
 
@@ -213,7 +212,7 @@ After completing the install, close the Anaconda window and reopen as a normal u
 
 # Install CatGT, TPrime, and C_Waves
 
-[CatGT](http://billkarsh.github.io/SpikeGLX/#catgt), [TPrime](http://billkarsh.github.io/SpikeGLX/#tprime), and [C_Waves](http://billkarsh.github.io/SpikeGLX/#post-processing-tools) are each available on the SpikeGLX download page. To install, simply download each zipped folder and extract to a convenient location, see the instructions [here](http://billkarsh.github.io/SpikeGLX/#command-line-tool-installation). The paths to these executables must then be set in **create_input_json.py**. 
+[CatGT](http://billkarsh.github.io/SpikeGLX/#catgt), [TPrime](http://billkarsh.github.io/SpikeGLX/#tprime), and [C_Waves](http://billkarsh.github.io/SpikeGLX/#post-processing-tools) are each available on the SpikeGLX download page. To install, simply download each zipped folder and extract to a convenient location, see the instructions [here](http://billkarsh.github.io/SpikeGLX/#command-line-tool-installation). The paths to these executables must then be set in **create_input_json.py**.
 
 NOTE: The pipeline is now compatible with the latest CatGT. If you are updating the pipeline, make sure you also get the most recent versions of CatGT, TPrime, and C_Waves.
 
@@ -222,7 +221,7 @@ NOTE: The pipeline is now compatible with the latest CatGT. If you are updating 
 
 ### Edit parameters for your system and runs
 
-Parameters are set in two files. Values that are constant across runs�like paths to code, parameters for sorting, etc � are set in **create_input_json.py**. Parameters that need to be set per run (run names, which triggers and probes to process�) are set in script files.
+Parameters are set in two files. Values that are constant across runslike paths to code, parameters for sorting, etc  are set in **create_input_json.py**. Parameters that need to be set per run (run names, which triggers and probes to process) are set in script files.
 
 In **create_input_json.py**, be sure to set these paths and parameters for your system:
 
@@ -239,8 +238,8 @@ In **create_input_json.py**, be sure to set these paths and parameters for your 
 
 Other rarely changed parameters in **create_input_json.py**:
 
-- Most Kilosort and pykilosort parameters. 
-- kilosort post processing params 
+- Most Kilosort and pykilosort parameters.
+- kilosort post processing params
 - quality metrics params
 
 Read through the parameter list for **create_input_json.py** to see which parameters are already passed in and therefore settable per run from a calling pipeline script. These currently include the threshold parameter for Kilosort, switches to include postprocessing steps within Kilosort, and radii (in um) to define the extent of templates and regions for calculating quality metrics. These radii are converted to sites in **create_input_json.py** using the probe type read from the metadata.
@@ -248,7 +247,7 @@ Read through the parameter list for **create_input_json.py** to see which parame
 
 ### Running scripts
 
-The scripts generate a command line to run specific modules using parameters stored in a json file, which is created by the script. Create a directory to hold the json files, e.g. 
+The scripts generate a command line to run specific modules using parameters stored in a json file, which is created by the script. Create a directory to hold the json files, e.g.
 
 \Users\labadmin\Documents\ecephys_clone\json_files
 
@@ -262,7 +261,7 @@ Meant for running sorting/postprocessing modules on collections of preprocessed 
 
 For either script, edit to set the destination for the json_files, and the location of the input run files. Edit the list of modules to include those you want to run. For the full pipeline script, you also need to set the CatGT and TPrime parameters.
 
-These scripts are easy to customize to send the output to different directories. 
+These scripts are easy to customize to send the output to different directories.
 
 To run scripts in pipenv, open a Windows command line, navigate to the ecephys_spike_sorting\scripts directory and enter:
 
@@ -274,7 +273,7 @@ To run scripts in pipenv, open a Windows command line, navigate to the ecephys_s
 To run scripts in Anaconda, open an Anacodna prompt, activate the environment, navigate to the ecephys_spike_sorting\scripts directory and enter:
 
 ```shell
-   conda activate ece_pyks2 
+   conda activate ece_pyks2
    python <script_name.py>
 ```
 
@@ -297,7 +296,7 @@ modules = [
             'quality_metrics'
           ]
 ```
-  
+
 When the mean_waveforms and metrics modules are re-run the first time, these output files are preserved with their old names:
 
 - metrics.csv
@@ -409,4 +408,4 @@ This code is an important part of the internal Allen Institute code base and we 
 See [Allen Institute Terms of Use](https://alleninstitute.org/legal/terms-use/)
 
 
-© 2019 Allen Institute for Brain Science
+Â© 2019 Allen Institute for Brain Science
