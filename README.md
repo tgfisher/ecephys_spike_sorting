@@ -101,7 +101,9 @@ Build the environment -- it will use the Pipfile located in this directory, and 
 ```shell
     $ export PIPENV_VENV_IN_PROJECT=1
     $ pipenv install # --python <path/to/python> <-- add that if you want to specify a python executable
+                     # e.g. pipenv install --python /usr/bin/python3.8
     $ pipenv shell
+    $ pip install .
 ```
 ### Set up to run MATLAB from Python
 
