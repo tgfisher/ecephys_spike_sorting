@@ -23,6 +23,7 @@ maintainers = [
 ]
 
 dependencies = [
+    "pyyaml"
     "matplotlib",
     "scipy",
     "numpy",
