@@ -10,6 +10,8 @@ from ecephys_spike_sorting.scripts.helpers import (
 
 from ecephys_spike_sorting.scripts.create_input_json import createInputJson
 
+from ecephys_spike_sorting.utils import catgt_params
+
 # script to run CatGT, KS2, postprocessing and TPrime on data collected using
 # SpikeGLX. The construction of the paths assumes data was saved with
 # "Folder per probe" selected (probes stored in separate folders) AND
@@ -102,10 +104,34 @@ process_lf = False
 # Note 2: this command line includes specification of edge extraction
 # see CatGT readme for details
 # these parameters will be used for all runs
-catGT_cmd_string = '-prb_fld -out_prb_fld -apfilter=butter,12,300,10000 -lffilter=butter,12,1,500 -gfix=0.4,0.10,0.02 '
+catGT_cmd_flags = ["prb_fld", "out_prb_fld"]
+
+catgt_pvps = {
+    "apfilter": catgt_params.BuildPassFilt( "butter", "12", "300", "10000").spec_str,
+    "lffilter": catgt_params.BandPassFilt("butter", "12", "1", "500").spec_str,
+    "gfix": catgt_params.GFix( "0.4", "0.1", "0.02").spec_str,
+} # parameter value pairs
+
+#catGT_cmd_string = '-prb_fld -out_prb_fld -apfilter=butter,12,300,10000 -lffilter=butter,12,1,500 -gfix=0.4,0.10,0.02 '
+catGT_cmd_string = " ".join(
+    [catgt_params.build_flags_strt(catGT_cmd_flags), catgt_params.build_pvp_str(catGT_pvps)]
+)
 
 ni_present = True
-ni_extract_string = '-xa=0,0,0,1,3,500 -xia=0,0,1,3,3,0 -xd=0,0,-1,1,50 -xid=0,0,-1,2,1.7 -xid=0,0,-1,3,5'
+
+ni_flags = [] # not sure if there are 'ni flags'
+ni_pvps = {
+    "xa": [
+        "0,0,0,1,3,500", "0,0,1,2.1,2.2,15", "0,0,3,2.1,2.8,9"
+    ], # SYNC, CAMERA, LICORICE
+    #"xia": "0,0,1,3,3,0",
+    #"xd": "0,0,-1,2,1.7",
+    #"xid": ["0,0,-1,2,1.7", 0,0,-1,3,5""],
+}
+#ni_extract_string = '-xa=0,0,0,1,3,500 -xia=0,0,1,3,3,0 -xd=0,0,-1,1,50 -xid=0,0,-1,2,1.7 -xid=0,0,-1,3,5'
+ni_extract_string = " ".join(
+    [catgt_params.build_flags_str(ni_flags), catgt_params.build_pvp_str(ni_pvps)]
+)
 
 
 
