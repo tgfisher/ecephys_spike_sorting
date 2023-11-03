@@ -106,15 +106,16 @@ process_lf = False
 # these parameters will be used for all runs
 catGT_cmd_flags = ["prb_fld", "out_prb_fld"]
 
-catgt_pvps = {
-    "apfilter": catgt_params.BuildPassFilt( "butter", "12", "300", "10000").spec_str,
+catGT_pvps = {
+    "zerofillmax": "500",
+    "apfilter": catgt_params.BandPassFilt( "butter", "12", "300", "10000").spec_str,
     "lffilter": catgt_params.BandPassFilt("butter", "12", "1", "500").spec_str,
     "gfix": catgt_params.GFix( "0.4", "0.1", "0.02").spec_str,
 } # parameter value pairs
 
 #catGT_cmd_string = '-prb_fld -out_prb_fld -apfilter=butter,12,300,10000 -lffilter=butter,12,1,500 -gfix=0.4,0.10,0.02 '
 catGT_cmd_string = " ".join(
-    [catgt_params.build_flags_strt(catGT_cmd_flags), catgt_params.build_pvp_str(catGT_pvps)]
+    [catgt_params.build_flags_str(catGT_cmd_flags), catgt_params.build_pvp_str(catGT_pvps)]
 )
 
 ni_present = True
@@ -234,7 +235,6 @@ for spec in run_specs:
 
     session_id = spec[0]
 
-    g_tag = f"_g{spec[1][0]}"
 
     # Make list of probes from the probe string
     prb_list = SpikeGLX_utils.ParseProbeStr(spec[3])
@@ -242,7 +242,7 @@ for spec in run_specs:
     # build path to the first probe folder; look into that folder
     # to determine the range of trials if the user specified t limits as
     # start and end
-    run_folder_name = spec[0] + g_tag #"_g" + spec[1]
+    run_folder_name = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" #"catGT defaults gate tag to lowest specified
     prb0_fld_name = run_folder_name + "_imec" + prb_list[0]
     prb0_fld = os.path.join(npx_directory, run_folder_name, prb0_fld_name)
     first_trig, last_trig = SpikeGLX_utils.ParseTrigStr(
@@ -286,7 +286,7 @@ for spec in run_specs:
         
         # build name of first trial to be concatenated/processed;
         # allows reaidng of the metadata
-        run_str = spec[0] + g_tag
+        run_str = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" # catGT convention: gate tag is lowest specified
         run_folder = run_str
         prb_folder = run_str + '_imec' + prb
         input_data_directory = os.path.join(npx_directory, run_folder, prb_folder)
@@ -326,7 +326,7 @@ for spec in run_specs:
         # location of the binary created by CatGT, using -out_prb_fld
         run_folder = 'catgt_' + run_str
         prb_folder = run_str + '_imec' + prb
-        run_str = spec[0] + g_tag #"_g" + spec[1]
+        run_str = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" # catGT convention: gate tag is lowest specified
         data_directory.append(os.path.join(catGT_dest, run_folder, prb_folder))
         fileName = run_str + '_tcat.imec' + prb + '.ap.bin'
         continuous_file = os.path.join(data_directory[i], fileName)
@@ -424,6 +424,7 @@ for spec in run_specs:
             spikeGLX_data=True,
             input_meta_path=input_meta_fullpath,
             catGT_run_name=spec[0],
+            gate_string=spec[1],
             kilosort_output_directory=kilosort_output_dir,
             extracted_data_directory=catGT_dest,
             tPrime_ni_ex_list=ni_extract_string,
