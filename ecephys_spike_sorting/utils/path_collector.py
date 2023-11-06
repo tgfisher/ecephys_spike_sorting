@@ -71,7 +71,7 @@ def main():
             key_str = leader + TAB * tabbed + f"{key}:"
             if isinstance(value, dict):
                 print(key_str, sep="")
-                pdict(value, tabbed = tabbed + 1)
+                printdict(value, tabbed = tabbed + 1)
             else:
                 value_str = TAB * (tabbed + 1) + f"{value}"
                 print(key_str, "\n", value_str, sep = "")
