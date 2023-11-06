@@ -9,6 +9,7 @@ description = "Tools for spike-sorting Allen Institute Neuropixels data"
 readme = "README.md"
 requires-python = ">=3.8"
 
+
 authors = [
     { name = "Josh Siegle", email = "joshs@alleninstitute.org" },
     { name = "Nile Graddis" },
@@ -23,6 +24,7 @@ maintainers = [
 ]
 
 dependencies = [
+    "pyyaml",
     "matplotlib",
     "scipy",
     "numpy",

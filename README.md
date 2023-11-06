@@ -99,9 +99,11 @@ cd \Users\labadmin\Documents\ecephys_clone\ecephys_spike_sorting
 Build the environment -- it will use the Pipfile located in this directory, and create the virtual environment in the local directory. Currently (May 2023) the latest version of setuptools appears to not function with installation of MATLAB, so after the install, we activate the environment and use pip to uninstall setuptools and install 59.8.0.  Finally, install the ecephys code in the environment.
 
 ```shell
-    $ set PIPENV_VENV_IN_PROJECT=1
+    $ export PIPENV_VENV_IN_PROJECT=1
     $ pipenv install # --python <path/to/python> <-- add that if you want to specify a python executable
+                     # e.g. pipenv install --python /usr/bin/python3.8
     $ pipenv shell
+    $ pip install .
 ```
 ### Set up to run MATLAB from Python
 
@@ -123,7 +125,8 @@ $ pipenv shell
 
 Replace <matlabroot> with the root directory of your MATLAB 2021b installation, for example:
 
-`C:\Program Files\MATLAB\R2021b` (or `/usr/bin/local/MATLAB/R2023a` on Ubuntu)
+
+`C:\Program Files\MATLAB\R2021b` (or `/usr/local/MATLAB/R2023a` on Ubuntu)
 
 For more details about installing the python engine, see the MATAB documentation:
 

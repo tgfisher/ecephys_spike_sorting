@@ -69,7 +69,7 @@ target/
 # pyenv python configuration file
 .python-version
 
-# ide specific 
+# ide specific
 .idea/
 .history/
 .vscode/
@@ -82,3 +82,6 @@ target/
 
 # macOS
 .DS_Store
+
+# ecephys path management
+ece_attributes.yaml
