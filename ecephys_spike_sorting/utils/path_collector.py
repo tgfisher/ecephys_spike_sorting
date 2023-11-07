@@ -49,7 +49,10 @@ def build_attributes_dict(attributes_path):
         'sglx_tools_pdict': _attr_dict["sglx_tools_path_dict"],
         'ks': {
             'versions': _attr_dict["ks_vers_path_dict"],
-            'out_tmp': _attr_dict["ks_output_tmp"]
+            'out_tmp': os.environ.get(
+                "KS_OUT_TMP_OVERRIDE",
+                _attr_dict["ks_output_tmp"]
+            )
         },
     }
 
