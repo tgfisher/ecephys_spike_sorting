@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=59.8.0", "wheel", "pytest-runner"]
+build-backend = "setuptools.build_meta:__legacy__"
+
+[project]
+name = "ecephys_spike_sorting"
+version = "0.1.0"
+description = "Tools for spike-sorting Allen Institute Neuropixels data"
+readme = "README.md"
+requires-python = "==3.8"
+
+authors = [
+    { name = "Josh Siegle", email = "joshs@alleninstitute.org" },
+    { name = "Nile Graddis" },
+    { name = "Xiaoxuan Jia" },
+    { name = "Gregg Heller" },
+    { name = "Chris Mochizuki" },
+    { name = "Dan Denman" },
+]
+
+maintainers = [
+    { name = "Jennifer Colonell" }
+]
+
+dependencies = [
+    "pyyaml",
+    "matplotlib",
+    "scipy",
+    "numpy",
+    "pandas",
+    "GitPython",
+    "pillow",
+    "argschema",
+    "xmljson",
+    "xarray",
+    "scikit_learn",
+    "joblib",
+    "psutil",
+]
+
+[project.urls]
+open_ephys_orig = "https://github.com/AllenInstitute/ecephys_spike_sorting"
+spike_glx = "https://github.com/jenniferColonell/ecephys_spike_sorting"
+
+[project.scripts]
+automerging = "ecephys_spike_sorting.modules.automerging.__main__:main"
+depth-estimation = "ecephys_spike_sorting.modules.depth_estimation.__main__:main"
+extract-from-npx = "ecephys_spike_sorting.modules.extract_from_npx.__main__:main"
+kilosort-helper = "ecephys_spike_sorting.modules.kilosort_helper.__main__:main"
+kilosort-postprocessing = "ecephys_spike_sorting.modules.kilosort_postprocessing.__main__:main"
+mean-waveforms = "ecephys_spike_sorting.modules.mean_waveforms.__main__:main"
+median-subtraction = "ecephys_spike_sorting.modules.median_subtraction.__main__:main"
+noise-templates = "ecephys_spike_sorting.modules.noise_templates.__main__:main"
+quality-metrics = "ecephys_spike_sorting.modules.quality_metrics.__main__:main"
+
+[tool.setuptools]
+include-package-data = true # default, leaving in for compleatness
+
+[tool.setuptools.packages.find]
+include = [
+    "ecephys_spike_sorting",
+]

@@ -11,6 +11,8 @@ import numpy as np
 
 from ...common.utils import catGT_ex_params_from_str
 
+from ecephys_spike_sorting.scripts.helpers import SpikeGLX_utils
+
 
 def call_TPrime(args):
 
@@ -33,7 +35,12 @@ def call_TPrime(args):
     
     # build paths to the input data for TPrime
     catGT_dest = args['directories']['extracted_data_directory']
-    run_name = args['catGT_helper_params']['run_name'] + '_g' + args['catGT_helper_params']['gate_string']
+    run_name = "_".join(
+        [
+            args["catGT_helper_params"]["run_name"],
+            f"g{SpikeGLX_utils.gate_lowspec(args['catGT_helper_params']['gate_string'])}",
+        ]
+    )
     run_dir_name = 'catgt_' + run_name
     prb_dir_prefix = run_name + '_imec'
     

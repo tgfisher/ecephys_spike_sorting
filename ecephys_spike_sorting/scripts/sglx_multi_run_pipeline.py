@@ -2,11 +2,15 @@ import os
 import sys
 import subprocess
 
-from helpers import SpikeGLX_utils
-from helpers import log_from_json
-from helpers import run_one_probe
-from create_input_json import createInputJson
+from ecephys_spike_sorting.scripts.helpers import (
+    SpikeGLX_utils,
+    log_from_json,
+    run_one_probe,
+)
 
+from ecephys_spike_sorting.scripts.create_input_json import createInputJson
+
+from ecephys_spike_sorting.utils import catgt_params
 
 from ecephys_spike_sorting.utils import catgt_params
 
@@ -21,6 +25,13 @@ from ecephys_spike_sorting.utils import catgt_params
 # -------------------------------
 # -------------------------------
 
+run_file_date = "20230813"
+animal_id = "TGFFANTIC"
+d_from_implant = "13"
+bank_spec = "Bank0_48__Bank1_47"
+
+run_base_name = f"{run_file_date}_{animal_id}_Day{d_from_implant}_{bank_spec}"
+
 # brain region specific params
 # can add a new brain region by adding the key and value for each param
 # can add new parameters -- any that are taken by create_input_json --
@@ -28,13 +39,17 @@ from ecephys_spike_sorting.utils import catgt_params
 # according to the new dictionary in the loop to that created json files.
 
 
-refPerMS_dict = {'default': 2.0, 'cortex': 2.0, 'medulla': 1.5, 'thalamus': 1.0}
+refPerMS_dict = {"default": 2.0, "cortex": 2.0, "medulla": 1.5, "thalamus": 1.0}
 
 # threhold values appropriate for KS2, KS2.5
-ksTh_dict = {'default':'[10,4]', 'cortex':'[10,4]', 'medulla':'[10,4]', 'thalamus':'[10,4]'}
+ksTh_dict = {
+    "default": "[10,4]",
+    "cortex": "[10,4]",
+    "medulla": "[10,4]",
+    "thalamus": "[10,4]",
+}
 # threshold values appropriate for KS3.0
-#ksTh_dict = {'default':'[9,9]', 'cortex':'[9,9]', 'medulla':'[9,9]', 'thalamus':'[9,9]'}
-
+# ksTh_dict = {'default':'[9,9]', 'cortex':'[9,9]', 'medulla':'[9,9]', 'thalamus':'[9,9]'}
 
 
 # -----------
@@ -43,11 +58,11 @@ ksTh_dict = {'default':'[10,4]', 'cortex':'[10,4]', 'medulla':'[10,4]', 'thalamu
 # Name for log file for this pipeline run. Log file will be saved in the
 # output destination directory catGT_dest
 # If this file exists, new run data is appended to it
-logName = 'SC048_log.csv'
+logName = run_base_name + "_log.csv"
 
 # Raw data directory = npx_directory
 # run_specs = name, gate, trigger and probes to process
-npx_directory = r'D:\SC048_in'
+npx_directory = os.environ["RAWDATA"]
 
 # Each run_spec is a list of 4 strings:
 #   undecorated run name (no g/t specifier, the run field in CatGT)
@@ -59,9 +74,8 @@ npx_directory = r'D:\SC048_in'
 #   brain regions, list of strings, one per probe, to set region specific params
 #           these strings must match a key in the param dictionaries above.
 
-run_specs = [
-						['SC048_122920_ex', '0', '0,0', '0:1', ['cortex','cortex','cortex'] ]
-]
+
+run_specs = [[run_base_name, "0", "0,0", "0:0", ["cortex", "cortex", "cortex"]]]
 
 # ------------------
 # Output destination
@@ -69,7 +83,7 @@ run_specs = [
 # Set to an existing directory; all output will be written here.
 # Output will be in the standard SpikeGLX directory structure:
 # run_folder/probe_folder/*.bin
-catGT_dest = r'D:\SC048_out'
+catGT_dest = os.environ["PPDATA"]
 
 # ------------
 # CatGT params
@@ -148,7 +162,7 @@ ks_nblocks = 1      # for KS2.5 and KS3; 1 for rigid registration in drift corre
 # This parameter is not implemented in standard versions of kilosort.
 ks_doFilter = 0
 
-ks_output_tag = 'ks2'
+ks_output_tag = "ks2pt5"
 
 
 # ----------------------
@@ -179,15 +193,14 @@ toStream_sync_params = 'ni' # should be ni, imec<probe index>. or obx<obx index>
 # ---------------
 # List of modules to run per probe; CatGT and TPrime are called once for each run.
 modules = [
-            'catGT_helper',
-            'kilosort_helper',
-            'kilosort_postprocessing',
-            #'noise_templates',
-            'mean_waveforms',
-            'quality_metrics'
-			]
+    "catGT_helper",
+    "kilosort_helper",
+    "kilosort_postprocessing",
+    #'noise_templates',
+    "mean_waveforms",
+    "quality_metrics",
 
-json_directory = r'C:\Users\colonellj\Documents\ecephys_anaconda\json_files'
+json_directory = os.environ["JSDIR"]
 
 # -----------------------
 # -----------------------
@@ -221,10 +234,10 @@ if not os.path.isfile(logFullPath):
 
 
 
-
 for spec in run_specs:
 
     session_id = spec[0]
+
 
     # Make list of probes from the probe string
     prb_list = SpikeGLX_utils.ParseProbeStr(spec[3])
@@ -232,11 +245,13 @@ for spec in run_specs:
     # build path to the first probe folder; look into that folder
     # to determine the range of trials if the user specified t limits as
     # start and end
-    run_folder_name = spec[0] + '_g' + spec[1]
-    prb0_fld_name = run_folder_name + '_imec' + prb_list[0]
+    run_folder_name = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" #"catGT defaults gate tag to lowest specified
+    prb0_fld_name = run_folder_name + "_imec" + prb_list[0]
     prb0_fld = os.path.join(npx_directory, run_folder_name, prb0_fld_name)
+
     first_trig, last_trig = SpikeGLX_utils.ParseTrigStr(spec[2], prb_list[0], spec[1], prb0_fld)
     trigger_str = repr(first_trig) + ',' + repr(last_trig)
+
 
     # loop over all probes to build json files of input parameters
     # initalize lists for input and output json files
@@ -274,7 +289,9 @@ for spec in run_specs:
 
         # build name of first trial to be concatenated/processed;
         # allows reaidng of the metadata
-        run_str = spec[0] + '_g' + spec[1]
+
+        run_str = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" # catGT convention: gate tag is lowest specified
+
         run_folder = run_str
         prb_folder = run_str + '_imec' + prb
         input_data_directory = os.path.join(npx_directory, run_folder, prb_folder)
@@ -285,34 +302,37 @@ for spec in run_specs:
 
         print(input_meta_fullpath)
 
-        info = createInputJson(catGT_input_json[i], npx_directory=npx_directory,
-                                       continuous_file = continuous_file,
-                                       kilosort_output_directory=catGT_dest,
-                                       spikeGLX_data = True,
-                                       input_meta_path = input_meta_fullpath,
-                                       catGT_run_name = spec[0],
-                                       gate_string = spec[1],
-                                       trigger_string = trigger_str,
-                                       probe_string = prb,
-                                       catGT_stream_string = catGT_stream_string,
-                                       catGT_car_mode = car_mode,
-                                       catGT_loccar_min_um = loccar_min,
-                                       catGT_loccar_max_um = loccar_max,
-                                       catGT_cmd_string = catGT_cmd_string + ' ' + extract_string,
-                                       extracted_data_directory = catGT_dest
-                                       )
 
+        info = createInputJson(
+            catGT_input_json[i],
+            npx_directory=npx_directory,
+            continuous_file=continuous_file,
+            kilosort_output_directory=catGT_dest,
+            spikeGLX_data=True,
+            input_meta_path=input_meta_fullpath,
+            catGT_run_name=spec[0],
+            gate_string=spec[1],
+            trigger_string=trigger_str,
+            probe_string=prb,
+            catGT_stream_string=catGT_stream_string,
+            catGT_car_mode=car_mode,
+            catGT_loccar_min_um=loccar_min,
+            catGT_loccar_max_um=loccar_max,
+            catGT_cmd_string=catGT_cmd_string + " " + extract_string,
+            extracted_data_directory=catGT_dest,
+        )
 
-        #create json files for the other modules
-        session_id.append(spec[0] + '_imec' + prb)
+        # create json files for the other modules
+        session_id.append(spec[0] + "_imec" + prb)
 
-        module_input_json.append(os.path.join(json_directory, session_id[i] + '-input.json'))
-
+        module_input_json.append(
+            os.path.join(json_directory, session_id[i] + "-input.json")
+        )
 
         # location of the binary created by CatGT, using -out_prb_fld
-        run_str = spec[0] + '_g' + spec[1]
         run_folder = 'catgt_' + run_str
         prb_folder = run_str + '_imec' + prb
+        run_str = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" # catGT convention: gate tag is lowest specified
         data_directory.append(os.path.join(catGT_dest, run_folder, prb_folder))
         fileName = run_str + '_tcat.imec' + prb + '.ap.bin'
         continuous_file = os.path.join(data_directory[i], fileName)
@@ -335,55 +355,57 @@ for spec in run_specs:
         # get region specific parameters
         ks_Th = ksTh_dict.get(spec[4][i])
         refPerMS = refPerMS_dict.get(spec[4][i])
-        print( 'ks_Th: ' + repr(ks_Th) + ' ,refPerMS: ' + repr(refPerMS))
 
-        info = createInputJson(module_input_json[i], npx_directory=npx_directory,
-	                                   continuous_file = continuous_file,
-                                       spikeGLX_data = True,
-                                       input_meta_path = input_meta_fullpath,
-									   kilosort_output_directory=kilosort_output_dir,
-                                       ks_make_copy = ks_make_copy,
-                                       noise_template_use_rf = False,
-                                       catGT_run_name = session_id[i],
-                                       gate_string = spec[1],
-                                       probe_string = spec[3],
-                                       ks_remDup = ks_remDup,
-                                       ks_finalSplits = 1,
-                                       ks_labelGood = 1,
-                                       ks_saveRez = ks_saveRez,
-                                       ks_copy_fproc = ks_copy_fproc,
-                                       ks_minfr_goodchannels = ks_minfr_goodchannels,
-                                       ks_whiteningRadius_um = ks_whiteningRadius_um,
-                                       ks_doFilter = ks_doFilter,
-                                       ks_Th = ks_Th,
-                                       ks_CSBseed = 1,
-                                       ks_LTseed = 1,
-                                       ks_templateRadius_um = ks_templateRadius_um,
-                                       ks_nblocks = ks_nblocks,
-                                       ks_CAR = ks_CAR,
-                                       extracted_data_directory = data_directory[i],
-                                       event_ex_param_str = event_ex_param_str,
-                                       c_Waves_snr_um = c_Waves_snr_um,
-                                       qm_isi_thresh = refPerMS/1000
-                                       )
+        print("ks_Th: " + repr(ks_Th) + " ,refPerMS: " + repr(refPerMS))
+
+        info = createInputJson(
+            module_input_json[i],
+            npx_directory=npx_directory,
+            continuous_file=continuous_file,
+            spikeGLX_data=True,
+            input_meta_path=input_meta_fullpath,
+            kilosort_output_directory=kilosort_output_dir,
+            ks_make_copy=ks_make_copy,
+            noise_template_use_rf=False,
+            catGT_run_name=session_id[i],
+            gate_string=spec[1],
+            probe_string=spec[3],
+            ks_remDup=ks_remDup,
+            ks_finalSplits=1,
+            ks_labelGood=1,
+            ks_saveRez=ks_saveRez,
+            ks_copy_fproc=ks_copy_fproc,
+            ks_minfr_goodchannels=ks_minfr_goodchannels,
+            ks_whiteningRadius_um=ks_whiteningRadius_um,
+            ks_doFilter=ks_doFilter,
+            ks_Th=ks_Th,
+            ks_CSBseed=1,
+            ks_LTseed=1,
+            ks_templateRadius_um=ks_templateRadius_um,
+            ks_nblocks=ks_nblocks,
+            ks_CAR=ks_CAR,
+            extracted_data_directory=data_directory[i],
+            event_ex_param_str=event_ex_param_str,
+            c_Waves_snr_um=c_Waves_snr_um,
+            qm_isi_thresh=refPerMS / 1000,
+        )
 
         # copy json file to data directory as record of the input parameters
-
 
     # loop over probes for processing.
     for i, prb in enumerate(prb_list):
 
-        run_one_probe.runOne( session_id[i],
-                 json_directory,
-                 data_directory[i],
-                 run_CatGT,
-                 catGT_input_json[i],
-                 catGT_output_json[i],
-                 modules,
-                 module_input_json[i],
-                 logFullPath )
-
-
+        run_one_probe.runOne(
+            session_id[i],
+            json_directory,
+            data_directory[i],
+            run_CatGT,
+            catGT_input_json[i],
+            catGT_output_json[i],
+            modules,
+            module_input_json[i],
+            logFullPath,
+        )
 
     if runTPrime:
 
