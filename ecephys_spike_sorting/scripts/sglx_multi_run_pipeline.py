@@ -12,6 +12,8 @@ from ecephys_spike_sorting.scripts.create_input_json import createInputJson
 
 from ecephys_spike_sorting.utils import catgt_params
 
+from ecephys_spike_sorting.utils import catgt_params
+
 # script to run CatGT, KS2, postprocessing and TPrime on data collected using
 # SpikeGLX. The construction of the paths assumes data was saved with
 # "Folder per probe" selected (probes stored in separate folders) AND
@@ -71,6 +73,7 @@ npx_directory = os.environ["RAWDATA"]
 #   probes to process, as a string, e.g. '0', '0,3', '0:3'
 #   brain regions, list of strings, one per probe, to set region specific params
 #           these strings must match a key in the param dictionaries above.
+
 
 run_specs = [[run_base_name, "0", "0,0", "0:0", ["cortex", "cortex", "cortex"]]]
 
@@ -140,7 +143,7 @@ ni_extract_string = " ".join(
 # KS2 or KS25 parameters
 # ----------------------
 # parameters that will be constant for all recordings
-# Template ekmplate radius and whitening, which are specified in um, will be 
+# Template ekmplate radius and whitening, which are specified in um, will be
 # translated into sites using the probe geometry.
 ks_remDup = 0
 ks_saveRez = 1
@@ -149,7 +152,7 @@ ks_templateRadius_um = 163
 ks_whiteningRadius_um = 163
 ks_minfr_goodchannels = 0.1
 ks_CAR = 0          # CAR already done in catGT
-ks_nblocks = 1      # for KS2.5 and KS3; 1 for rigid registration in drift correction, 
+ks_nblocks = 1      # for KS2.5 and KS3; 1 for rigid registration in drift correction,
                     # higher numbers to allow different drift for different 'blocks' of the probe
 
 # If running KS20_for_preprocessed_data:
@@ -196,7 +199,6 @@ modules = [
     #'noise_templates',
     "mean_waveforms",
     "quality_metrics",
-]
 
 json_directory = os.environ["JSDIR"]
 
@@ -231,6 +233,7 @@ if not os.path.isfile(logFullPath):
     log_from_json.writeHeader(logFullPath)
 
 
+
 for spec in run_specs:
 
     session_id = spec[0]
@@ -245,10 +248,10 @@ for spec in run_specs:
     run_folder_name = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" #"catGT defaults gate tag to lowest specified
     prb0_fld_name = run_folder_name + "_imec" + prb_list[0]
     prb0_fld = os.path.join(npx_directory, run_folder_name, prb0_fld_name)
-    first_trig, last_trig = SpikeGLX_utils.ParseTrigStr(
-        spec[2], prb_list[0], spec[1], prb0_fld
-    )
-    trigger_str = repr(first_trig) + "," + repr(last_trig)
+
+    first_trig, last_trig = SpikeGLX_utils.ParseTrigStr(spec[2], prb_list[0], spec[1], prb0_fld)
+    trigger_str = repr(first_trig) + ',' + repr(last_trig)
+
 
     # loop over all probes to build json files of input parameters
     # initalize lists for input and output json files
@@ -258,21 +261,21 @@ for spec in run_specs:
     module_output_json = []
     session_id = []
     data_directory = []
-    
+
     # first loop over probes creates json files containing parameters for
     # both preprocessing (CatGt) and sorting + postprocessing
-    
+
     for i, prb in enumerate(prb_list):
-            
+
         #create CatGT command for this probe
         print('Creating json file for CatGT on probe: ' + prb)
         # Run CatGT
         catGT_input_json.append(os.path.join(json_directory, spec[0] + prb + '_CatGT' + '-input.json'))
         catGT_output_json.append(os.path.join(json_directory, spec[0] + prb + '_CatGT' + '-output.json'))
-        
+
         # build extract string for SYNC channel for this probe
         # sync_extract = '-SY=' + prb +',-1,6,500'
-        
+
         # if this is the first probe proceessed, process the ni stream with it
         if i == 0 and ni_present:
             catGT_stream_string = '-ap -ni'
@@ -280,13 +283,15 @@ for spec in run_specs:
         else:
             catGT_stream_string = '-ap'
             extract_string = ''
-            
+
         if process_lf:
             catGT_stream_string = catGT_stream_string + ' -lf'
-        
+
         # build name of first trial to be concatenated/processed;
         # allows reaidng of the metadata
+
         run_str = spec[0] + f"_g{SpikeGLX_utils.gate_lowspec(spec[1])}" # catGT convention: gate tag is lowest specified
+
         run_folder = run_str
         prb_folder = run_str + '_imec' + prb
         input_data_directory = os.path.join(npx_directory, run_folder, prb_folder)
@@ -294,8 +299,9 @@ for spec in run_specs:
         continuous_file = os.path.join(input_data_directory, fileName)
         metaName = run_str + '_t' + repr(first_trig) + '.imec' + prb + '.ap.meta'
         input_meta_fullpath = os.path.join(input_data_directory, metaName)
-        
+
         print(input_meta_fullpath)
+
 
         info = createInputJson(
             catGT_input_json[i],
@@ -330,7 +336,7 @@ for spec in run_specs:
         data_directory.append(os.path.join(catGT_dest, run_folder, prb_folder))
         fileName = run_str + '_tcat.imec' + prb + '.ap.bin'
         continuous_file = os.path.join(data_directory[i], fileName)
- 
+
         outputName = 'imec' + prb + '_' + ks_output_tag
 
         # kilosort_postprocessing and noise_templates moduules alter the files
@@ -349,6 +355,7 @@ for spec in run_specs:
         # get region specific parameters
         ks_Th = ksTh_dict.get(spec[4][i])
         refPerMS = refPerMS_dict.get(spec[4][i])
+
         print("ks_Th: " + repr(ks_Th) + " ,refPerMS: " + repr(refPerMS))
 
         info = createInputJson(
