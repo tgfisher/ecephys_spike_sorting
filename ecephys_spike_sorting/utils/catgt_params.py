@@ -9,10 +9,27 @@ TODO:
  - [ ] abstact base class with "spec_string" method.
 
 """
+from enum import IntEnum
 from typing import Literal
 
 VALID_FILTERS = ("butter", "biquad")
+
 _BandPassFilters = Literal[VALID_FILTERS]
+
+class _XAStreamTypes(IntEnum):
+    """Valid streams for analog extractions. The 'js' in the SGLX documentation."""
+    NI = 0
+    OB = 1
+    AP = 2
+
+class _XAStreamIndices():
+    """Valid stream indices for analog extractions. The 'ip' in the SGLX documentation.
+        The tricky issue is that this is dependent on the stream type that is chosen.
+
+        Leaving this until after the Areadne."""
+
+    def __init__(self):
+        raise NotImplementedError
 
 def build_flags_str(cmd_flags):
     if cmd_flags:
@@ -145,3 +162,54 @@ class GFix():
             return float(val)
         except ValueError:
             raise ValueError(f"A {kind} value must convert to float.")
+
+class XtractAnalog():
+    """
+    E.g. extract pulse signal from analog chan (js,ip,word,thresh1(V),thresh2(V),millisec)
+
+    -xa=0,0,2,3.0,4.5,25
+
+    - xa: Finds positive pulses in any analog channel.
+    - xia: Finds inverted pulses in any analog channel.
+
+    Extractors xa
+    -------------
+
+    Following -xa=js,ip,word, these parameters are required:
+
+    "js" - "input stream type" usually NI (nidq)
+        NI: js = 0 (any extractor).
+        OB: js = 1 (any extractor).
+        AP: js = 2 (only {xd, xid} are legal)
+        LF: js = 3 (not sure if can be extracted) -- TGF added
+
+    "ip" - "input stream index"
+        NI: ip = 0 (there is only one NI stream).
+        OB: ip = 0 selects obx0, ip = 7 selects obx7, etc.
+        AP: ip = 0 selects imec0, ip = 7 selects imec7, etc.
+
+    "word" - Word is a zero-based channel index. It selects the 16-bit data
+    word to process.
+
+        word = -1, selects the last word in that stream. That's especially useful
+        to specify the SY word at the end of a OneBox or probe stream.
+
+    Primary threshold-1 (V).
+    Optional more stringent threshold-2 (V).
+    Milliseconds duration.
+
+    If your signal looks like clean square pulses, set threshold-2 to be closer
+    to baseline than threshold-1 to ignore the threshold-2 level and run more
+    efficiently. For noisy signals or for non-square pulses set threshold-2 to
+    be farther from baseline than theshold-1 to ensure pulses attain a desired
+    deflection amplitude. Using two separate threshold levels allows detecting
+    the earliest time that pulse departs from baseline (threshold-1) and
+    separately testing that the deflection is great enough to be considered a
+    real event and not noise (threshold-2). See Fig. 1.
+
+    """
+
+    def __init__(self, js: _XAStreamTypes, ip):
+        """Postponing until after areadne."""
+        raise NotImplementedError
+
