@@ -70,7 +70,17 @@ def createInputJson(
     wm_spread_thresh = 0.12,
     wm_site_range = 16,
     qm_isi_thresh = 1.5/1000,
-    include_pcs = True
+    include_pcs = True,
+    # prephy module
+    snr_min = 1.0,
+    mua_fr_min = 0.10, # set to the same value as ks_minfr_goodchannels
+    halfwidth_max = 0.30, # unused if => wide_halfwidth_max, allows for honing
+                          #  based on repolarization slope for hwm < cells < w_hwm
+    wide_halfwidth_max = 0.30, # always label noise if hw exceeds
+    repo_slope =  0,
+    depth = 5000, # (from 3200) idk about this one, might be different for the rat data
+    isi_viol_max = 0.4,
+    contam_rate_max = 25,
 ):
 
     # hard coded paths to code on your computer and system
@@ -393,8 +403,24 @@ def createInputJson(
                 "fromStream_list_3A" : fromStream_list_3A,
                 "psth_ex_str": event_ex_param_str,
                 "sort_out_tag": ks_output_tag
-        },  
-                
+        },
+
+        "prephy_filters_params": {
+            "snr_min": snr_min,
+            "halfwidth_max": halfwidth_max,
+            "wide_halfwidth_max": wide_halfwidth_max,
+            "repo_slope": repo_slope,
+            "mua_fr_min": mua_fr_min,
+            "depth": depth,
+            "isi_viol_max": isi_viol_max,
+            "contam_rate_max": contam_rate_max,
+            "good_fr_min": ks_minfr_goodchannels, # does not get used. I wonder if this
+                                                  #  should be used to pull MUA units up
+                                                  #  rather than mu_fr_min as it is now?
+                                                  #  atm it is the same default as mua_fr_min
+                                                  #  so it is moot point.
+        }
+
         "psth_events": {
                 "event_ex_param_str": event_ex_param_str
          }
