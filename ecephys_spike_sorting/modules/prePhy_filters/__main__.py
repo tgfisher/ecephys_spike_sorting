@@ -3,6 +3,7 @@ Additional module written by Emily Aery Jones, 19 May 2022; edited by Charlotte 
 """
 from argschema import ArgSchemaParser
 import os
+from pathlib import Path
 import time
 import numpy as np
 import pandas as pd
@@ -48,7 +49,7 @@ def filter_by_metrics(args):
           checked above in the catch all logic and those rows were labeled
           'noise'. """
 
-    print('ecephys spike sorting: pre-Phy filters module')
+    print('ecephys spike sorting: pre-Phy filters module\n\n')
 
     start = time.time()
 
@@ -96,19 +97,36 @@ def filter_by_metrics(args):
     #v - version=1 if the blah file exists
     #v - version=2 if the blah file is _1
 
+    def _get_current_metrics(base_file_path, metrics_version):
+        if metrics_version == 0:
+            raise Exception(
+                f"Needs a version of the {base_file_path.stem} to work. Place this module last."
+            )
+        elif metrics_version == 1:
+            return pd.read_csv(base_file_path)
+        else:
+            # use the previous/recent metrics file
+            recent_metrics_file_path = base_file_path.with_stem(
+                base_file_path.stem + f"_{metrics_version-1}"
+            )
+            return pd.read_csv(recent_metrics_file_path)
+
     # find the correct metrics file (eg metrics.csv, metrics_1.csv, ...)
-    metrics_file_args = args['cluster_metrics']['cluster_metrics_file']
-    metrics_file, metrics_version = getFileVersion(metrics_file_args)
+    metrics_file_path = Path(args['cluster_metrics']['cluster_metrics_file'])
+    out_metrics_file, metrics_version = getFileVersion(metrics_file_path)
 
 
-    waveform_metrics_file_args = args['waveform_metrics']['waveform_metrics_file']
-    waveform_metrics_file, waveform_metrics_version = getFileVersion(waveform_metrics_file_args)
+    waveform_metrics_file_path = Path(args['waveform_metrics']['waveform_metrics_file'])
+    _next_waveform_metrics_file, waveform_metrics_version = getFileVersion(waveform_metrics_file_path)
 
 
     # read the metrics files and join with waveforms if previous module failed to
-    metrics = pd.read_csv(metrics_file)
+    metrics = _get_current_metrics(metrics_file_path, metrics_version)
     if 'snr' not in metrics.columns:
-        waveform_metrics = pd.read_csv(waveform_metrics_file)
+        waveform_metrics = _get_current_metrics(
+            waveform_metrics_file_path,
+            waveform_metrics_version,
+        )
         metrics = metrics.merge(waveform_metrics, left_on='cluster_id', right_on='cluster_id')
 
     # read cluster assignments

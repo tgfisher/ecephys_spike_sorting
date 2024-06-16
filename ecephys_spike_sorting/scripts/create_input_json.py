@@ -419,7 +419,7 @@ def createInputJson(
                                                   #  rather than mu_fr_min as it is now?
                                                   #  atm it is the same default as mua_fr_min
                                                   #  so it is moot point.
-        }
+        },
 
         "psth_events": {
                 "event_ex_param_str": event_ex_param_str
